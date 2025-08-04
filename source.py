@@ -3,6 +3,15 @@ from google.cloud import vmmigration_v1
 from google.api_core import exceptions
 from google.cloud import secretmanager
 
+# Import the necessary types directly from the vmmigration_v1.types submodule.
+# This resolves the AttributeError by making the classes available in the script's namespace.
+from google.cloud.vmmigration_v1.types import (
+    Source,
+    AwsSourceDetails,
+    AccessKeyCredentials,
+    CreateSourceRequest
+)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -23,9 +32,9 @@ def add_aws_source(project_id: str, location: str, source_id: str, aws_region: s
         source_id: The name for the new source.
         aws_region: The AWS region for the source VMs.
         access_key_id_secret: The resource name of the Secret Manager secret for the AWS access key ID.
-            e.g. projects/your-gcp-project-id/secrets/aws-access-key-id/versions/latest
+              e.g. projects/your-gcp-project-id/secrets/aws-access-key-id/versions/latest
         secret_access_key_secret: The resource name of the Secret Manager secret for the AWS secret access key.
-            e.g. projects/your-gcp-project-id/secrets/aws-secret-access-key/versions/latest
+              e.g. projects/your-gcp-project-id/secrets/aws-secret-access-key/versions/latest
     """
     # Create a client
     client = vmmigration_v1.VmMigrationClient()
@@ -40,21 +49,24 @@ def add_aws_source(project_id: str, location: str, source_id: str, aws_region: s
         logging.error(f"Could not find a secret. Make sure your secrets exist and you have permissions. Secret name: {e}")
         raise
 
-    aws_source_details = vmmigration_v1.AwsSourceDetails(
+    # The types are now correctly imported, so you can call them directly.
+    aws_source_details = AwsSourceDetails(
         aws_region=aws_region,
-        access_key_creds=vmmigration_v1.AccessKeyCredentials(
+        access_key_creds=AccessKeyCredentials(
             access_key_id=access_key_id,
             secret_access_key=secret_access_key
         ),
     )
 
-    source = vmmigration_v1.Source(
+    # The types are now correctly imported, so you can call them directly.
+    source = Source(
         aws=aws_source_details,
         description=f"AWS source for {aws_region}"
     )
 
     # Prepare the request
-    request = vmmigration_v1.CreateSourceRequest(
+    # The types are now correctly imported, so you can call them directly.
+    request = CreateSourceRequest(
         parent=f"projects/{project_id}/locations/{location}",
         source_id=source_id,
         source=source,
