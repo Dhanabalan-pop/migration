@@ -3,6 +3,11 @@ from google.cloud import vmmigration_v1
 from google.api_core import exceptions
 from google.cloud import secretmanager
 
+# We will access the types directly from the vmmigration_v1 module.
+# The previous attempts to import from submodules or use the client's .types attribute
+# have failed due to version-specific library structure.
+# This approach is the most stable.
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -23,9 +28,9 @@ def add_aws_source(project_id: str, location: str, source_id: str, aws_region: s
         source_id: The name for the new source.
         aws_region: The AWS region for the source VMs.
         access_key_id_secret: The resource name of the Secret Manager secret for the AWS access key ID.
-            e.g. projects/your-gcp-project-id/secrets/aws-access-key-id/versions/latest
+              e.g. projects/your-gcp-project-id/secrets/aws-access-key-id/versions/latest
         secret_access_key_secret: The resource name of the Secret Manager secret for the AWS secret access key.
-            e.g. projects/your-gcp-project-id/secrets/aws-secret-access-key/versions/latest
+              e.g. projects/your-gcp-project-id/secrets/aws-secret-access-key/versions/latest
     """
     # Create a client
     client = vmmigration_v1.VmMigrationClient()
@@ -40,6 +45,7 @@ def add_aws_source(project_id: str, location: str, source_id: str, aws_region: s
         logging.error(f"Could not find a secret. Make sure your secrets exist and you have permissions. Secret name: {e}")
         raise
 
+    # The corrected approach: The classes are attributes of the `vmmigration_v1` module itself.
     aws_source_details = vmmigration_v1.AwsSourceDetails(
         aws_region=aws_region,
         access_key_creds=vmmigration_v1.AccessKeyCredentials(
@@ -48,6 +54,7 @@ def add_aws_source(project_id: str, location: str, source_id: str, aws_region: s
         ),
     )
 
+    # Access other types in the same way
     source = vmmigration_v1.Source(
         aws=aws_source_details,
         description=f"AWS source for {aws_region}"
