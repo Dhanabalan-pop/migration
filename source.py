@@ -1,19 +1,16 @@
+# This snippet has been automatically generated and should be regarded as a
+# code template only.
+# It will require modifications to work:
+# - It may require correct/in-range values for request initialization.
+# - It may require specifying regional endpoints when creating the service
+#   client as shown in:
+#   https://googleapis.dev/python/google-api-core/latest/client_options.html
 import logging
 from google.cloud import vmmigration_v1
 from google.api_core import exceptions
 from google.cloud import secretmanager
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('migration.log'),
-        logging.StreamHandler()
-    ]
-)
-
-def add_aws_source(project_id: str, location: str, source_id: str, aws_region: str, access_key_id_secret: str, secret_access_key_secret: str):
+def sample_create_source(project_id: str, location: str, source_id: str, aws_region: str, access_key_id_secret: str, secret_access_key_secret: str):
     """
     Adds a new migration source for an AWS source.
 
@@ -23,9 +20,9 @@ def add_aws_source(project_id: str, location: str, source_id: str, aws_region: s
         source_id: The name for the new source.
         aws_region: The AWS region for the source VMs.
         access_key_id_secret: The resource name of the Secret Manager secret for the AWS access key ID.
-            e.g. projects/your-gcp-project-id/secrets/aws-access-key-id/versions/latest
+              e.g. projects/your-gcp-project-id/secrets/aws-access-key-id/versions/latest
         secret_access_key_secret: The resource name of the Secret Manager secret for the AWS secret access key.
-            e.g. projects/your-gcp-project-id/secrets/aws-secret-access-key/versions/latest
+              e.g. projects/your-gcp-project-id/secrets/aws-secret-access-key/versions/latest
     """
     # Create a client
     client = vmmigration_v1.VmMigrationClient()
@@ -40,6 +37,7 @@ def add_aws_source(project_id: str, location: str, source_id: str, aws_region: s
         logging.error(f"Could not find a secret. Make sure your secrets exist and you have permissions. Secret name: {e}")
         raise
 
+    # Define source objects before they are used in the request.
     aws_source_details = vmmigration_v1.AwsSourceDetails(
         aws_region=aws_region,
         access_key_creds=vmmigration_v1.AccessKeyCredentials(
@@ -53,7 +51,7 @@ def add_aws_source(project_id: str, location: str, source_id: str, aws_region: s
         description=f"AWS source for {aws_region}"
     )
 
-    # Prepare the request
+    # Initialize request argument(s)
     request = vmmigration_v1.CreateSourceRequest(
         parent=f"projects/{project_id}/locations/{location}",
         source_id=source_id,
@@ -61,22 +59,14 @@ def add_aws_source(project_id: str, location: str, source_id: str, aws_region: s
     )
 
     # Make the request
-    logging.info(f"Creating AWS source '{source_id}' in project '{project_id}' location '{location}'...")
-    try:
-        operation = client.create_source(request=request)
+    operation = client.create_source(request=request)
 
-        logging.info("Waiting for operation to complete...")
-        response = operation.result()
+    print("Waiting for operation to complete...")
 
-        logging.info(f"Source created successfully: {response.name}")
-        return response
-    except exceptions.AlreadyExists:
-        logging.warning(f"Source '{source_id}' already exists in {location}. No action taken.")
-        source_path = client.source_path(project_id, location, source_id)
-        return client.get_source(name=source_path)
-    except Exception as e:
-        logging.error(f"Failed to create source: {e}", exc_info=True)
-        raise
+    response = operation.result()
+
+    # Handle the response
+    print(response)
 
 def main():
     """Main function to demonstrate adding an AWS source."""
@@ -91,7 +81,7 @@ def main():
     access_key_id_secret_name = f"projects/{project_id}/secrets/aws-access-key-id/versions/latest"
     secret_access_key_secret_name = f"projects/{project_id}/secrets/aws-secret-access-key/versions/latest"
 
-    add_aws_source(project_id, location, source_id, aws_region, access_key_id_secret_name, secret_access_key_secret_name)
+    sample_create_source(project_id, location, source_id, aws_region, access_key_id_secret_name, secret_access_key_secret_name)
 
 if __name__ == "__main__":
     main()
